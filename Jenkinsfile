@@ -16,9 +16,9 @@ pipeline {
             }
         }
 
-        stage('Deploy Application') {
+        stage('Deploy') {
             steps {
-                bat 'start java -jar target/student-cicd-1.0.jar'
+                bat 'java -jar target/student-cicd-1.0.jar'
             }
         }
 
