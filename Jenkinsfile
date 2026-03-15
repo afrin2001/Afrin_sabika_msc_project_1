@@ -1,32 +1,29 @@
 pipeline {
     agent any
 
+    tools {
+        maven 'Maven'
+        jdk 'Java'
+    }
 
     stages {
 
         stage('Clone Repository') {
             steps {
-                checkout scm
+                git 'https://github.com/yourusername/student-cicd-project.git'
             }
         }
 
-        stage('Build') {
+        stage('Build Project') {
             steps {
-                bat 'mvn clean package -DskipTests'
+                bat 'mvn clean package'
             }
         }
 
-        stage('Test') {
+        stage('Run Application') {
             steps {
-                bat 'mvn test'
+                bat 'java -jar target/student-cicd-1.0.jar'
             }
         }
-
-        stage('Package') {
-            steps {
-                bat 'mvn package'
-            }
-        }
-
     }
 }
