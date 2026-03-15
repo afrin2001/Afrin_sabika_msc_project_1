@@ -1,21 +1,17 @@
 package com.example.demo;
 
 import org.springframework.web.bind.annotation.*;
-import java.util.*;
 
 @RestController
 public class StudentController {
 
-    List<Student> students = new ArrayList<>();
-
-    @GetMapping("/students")
-    public List<Student> getStudents() {
-        return students;
+    @GetMapping("/")
+    public String home() {
+        return "CI/CD Pipeline Working!";
     }
 
-    @PostMapping("/students")
-    public Student addStudent(@RequestBody Student student) {
-        students.add(student);
-        return student;
+    @GetMapping("/students")
+    public String students() {
+        return "Student API working";
     }
 }

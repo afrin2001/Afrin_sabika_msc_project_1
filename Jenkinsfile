@@ -16,9 +16,9 @@ pipeline {
             }
         }
 
-       stage('Run Application') {
+        stage('Run Spring Boot App') {
             steps {
-                bat 'java -jar target/student-cicd-1.0.jar'
+                bat 'mvn spring-boot:run'
             }
         }
 
