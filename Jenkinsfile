@@ -1,16 +1,12 @@
 pipeline {
     agent any
 
-    tools {
-        maven 'Maven'
-        jdk 'Java'
-    }
 
     stages {
 
         stage('Clone Repository') {
             steps {
-                git 'https://github.com/yourusername/student-cicd-project.git'
+                checkout scm
             }
         }
 
@@ -20,10 +16,11 @@ pipeline {
             }
         }
 
-        stage('Run Application') {
+       stage('Run Application') {
             steps {
                 bat 'java -jar target/student-cicd-1.0.jar'
             }
         }
+
     }
 }
