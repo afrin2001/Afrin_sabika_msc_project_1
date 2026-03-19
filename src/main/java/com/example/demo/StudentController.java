@@ -31,3 +31,25 @@ public class StudentController {
         return "redirect:/";
     }
 }
+
+@PostMapping("/chat")
+@ResponseBody
+public String chat(@RequestParam String message) {
+
+    message = message.toLowerCase();
+
+    if(message.contains("hello"))
+        return "Hello! How can I help you?";
+
+    else if(message.contains("add"))
+        return "You can add a student using the Add Student button.";
+
+    else if(message.contains("delete"))
+        return "Click delete button near student name.";
+
+    else if(message.contains("ci") || message.contains("cd"))
+        return "CI/CD automates build and deployment using Jenkins.";
+
+    else
+        return "Sorry, I didn't understand. Try asking about students or CI/CD.";
+}
