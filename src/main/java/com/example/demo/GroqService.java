@@ -1,9 +1,10 @@
 package com.example.demo;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.json.JSONObject;
-import org.json.JSONArray;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -26,27 +27,48 @@ public class GroqService {
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setDoOutput(true);
 
+            // 🔥 Build student data
             StringBuilder studentData = new StringBuilder();
             for (Student s : students) {
-                studentData.append(s.toString()).append("\\n");
+                studentData.append(s.toString()).append("\n");
             }
 
             String prompt = "You are a Student Management AI.\n" +
                     "Student Data:\n" + studentData +
                     "\nUser: " + message;
 
-            String jsonInput = "{\n" +
-                    "  \"model\": \"llama3-8b-8192\",\n" +
-                    "  \"messages\": [\n" +
-                    "    {\"role\": \"user\", \"content\": \"" + prompt.replace("\"","\\\"") + "\"}\n" +
-                    "  ]\n" +
-                    "}";
+            // ✅ SAFE JSON BUILDING
+            JSONObject requestBody = new JSONObject();
+            requestBody.put("model", "llama3-8b-8192");
 
-            conn.getOutputStream().write(jsonInput.getBytes());
+            JSONArray messages = new JSONArray();
 
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(conn.getInputStream())
-            );
+            JSONObject systemMsg = new JSONObject();
+            systemMsg.put("role", "system");
+            systemMsg.put("content", "You are a helpful Student Management AI");
+
+            JSONObject userMsg = new JSONObject();
+            userMsg.put("role", "user");
+            userMsg.put("content", prompt);
+
+            messages.put(systemMsg);
+            messages.put(userMsg);
+
+            requestBody.put("messages", messages);
+
+            // 🔥 SEND REQUEST
+            OutputStream os = conn.getOutputStream();
+            os.write(requestBody.toString().getBytes());
+            os.flush();
+
+            // 🔥 HANDLE RESPONSE / ERROR
+            BufferedReader reader;
+
+            if (conn.getResponseCode() >= 400) {
+                reader = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+            } else {
+                reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            }
 
             StringBuilder response = new StringBuilder();
             String line;
@@ -59,23 +81,24 @@ public class GroqService {
 
             String result = response.toString();
 
-                // ✅ DEBUG (add this line)
-                System.out.println("FULL RESPONSE: " + result);
-                
-                // ✅ SAFE JSON PARSING
-                JSONObject json = new JSONObject(result);
-                JSONArray choices = json.getJSONArray("choices");
-                
-                if (choices.length() > 0) {
-                    JSONObject messageObj = choices.getJSONObject(0).getJSONObject("message");
-                    return messageObj.getString("content");
-                }
-                
-                return "No response from AI";
+            // 🔍 DEBUG (optional)
+            System.out.println("RESPONSE: " + result);
+
+            // ✅ PARSE RESPONSE
+            JSONObject json = new JSONObject(result);
+            JSONArray choices = json.getJSONArray("choices");
+
+            if (choices.length() > 0) {
+                return choices.getJSONObject(0)
+                        .getJSONObject("message")
+                        .getString("content");
+            }
+
+            return "No response from AI";
 
         } catch (Exception e) {
-                e.printStackTrace();  // VERY IMPORTANT
-                return "Error: " + e.getMessage();
-            }
+            e.printStackTrace();
+            return "Error: " + e.getMessage();
+        }
     }
 }
