@@ -24,7 +24,6 @@ public class Student {
     public String getCourse() { return course; }
     public void setCourse(String course) { this.course = course; }
 
-    // 🔥 IMPORTANT FOR AI
     @Override
     public String toString() {
         return "Name: " + name + ", Email: " + email + ", Course: " + course;
