@@ -82,11 +82,27 @@ public class GroqService {
             String result = response.toString();
 
             // 🔍 DEBUG (optional)
-            System.out.println("RESPONSE: " + result);
+            System.out.println("FULL RESPONSE: " + result);
 
             // ✅ PARSE RESPONSE
-            JSONObject json = new JSONObject(result);
-            JSONArray choices = json.getJSONArray("choices");
+                JSONObject json = new JSONObject(result);
+                
+                // ✅ HANDLE ERROR RESPONSE FIRST
+                if (json.has("error")) {
+                    JSONObject error = json.getJSONObject("error");
+                    return "API Error: " + error.getString("message");
+                }
+                
+                // ✅ NORMAL RESPONSE
+                JSONArray choices = json.getJSONArray("choices");
+                
+                if (choices.length() > 0) {
+                    return choices.getJSONObject(0)
+                            .getJSONObject("message")
+                            .getString("content");
+                }
+                
+                return "No response from AI";
 
             if (choices.length() > 0) {
                 return choices.getJSONObject(0)
