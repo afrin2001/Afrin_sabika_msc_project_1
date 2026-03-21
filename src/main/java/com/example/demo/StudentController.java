@@ -4,13 +4,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Controller
 public class StudentController {
 
     private final StudentRepository repo;
+    private final GroqService aiService;
 
-    public StudentController(StudentRepository repo){
+    public StudentController(StudentRepository repo, GroqService aiService){
         this.repo = repo;
+        this.aiService = aiService;
     }
 
     @GetMapping("/")
@@ -31,26 +35,13 @@ public class StudentController {
         return "redirect:/";
     }
 
-    // ✅ CHAT FEATURE (INSIDE CLASS)
+    // 🔥 REAL AI CHAT
     @PostMapping("/chat")
     @ResponseBody
     public String chat(@RequestParam String message) {
 
-        message = message.toLowerCase();
+        List<Student> students = repo.findAll();
 
-        if(message.contains("hello"))
-            return "Hello! How can I help you?";
-
-        else if(message.contains("add"))
-            return "Click Add Student button.";
-
-        else if(message.contains("delete"))
-            return "Use delete button near student.";
-
-        else if(message.contains("ci") || message.contains("cd"))
-            return "CI/CD automates build using Jenkins.";
-
-        else
-            return "I didn't understand. Try again.";
+        return aiService.getAIResponse(message, students);
     }
 }
