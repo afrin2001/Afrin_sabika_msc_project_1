@@ -27,7 +27,7 @@ public class GroqService {
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setDoOutput(true);
 
-            // 🔥 Build student data
+            // ✅ Prepare student data
             StringBuilder studentData = new StringBuilder();
             for (Student s : students) {
                 studentData.append(s.toString()).append("\n");
@@ -37,7 +37,7 @@ public class GroqService {
                     "Student Data:\n" + studentData +
                     "\nUser: " + message;
 
-            // ✅ SAFE JSON BUILDING
+            // ✅ Build JSON safely
             JSONObject requestBody = new JSONObject();
             requestBody.put("model", "llama3-8b-8192");
 
@@ -56,14 +56,13 @@ public class GroqService {
 
             requestBody.put("messages", messages);
 
-            // 🔥 SEND REQUEST
+            // ✅ Send request
             OutputStream os = conn.getOutputStream();
             os.write(requestBody.toString().getBytes());
             os.flush();
 
-            // 🔥 HANDLE RESPONSE / ERROR
+            // ✅ Read response (handle error also)
             BufferedReader reader;
-
             if (conn.getResponseCode() >= 400) {
                 reader = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
             } else {
@@ -79,28 +78,22 @@ public class GroqService {
 
             reader.close();
 
-           String result = response.toString();
+            String result = response.toString();
 
-            // ✅ DEBUG MUST BE HERE
+            // ✅ DEBUG (safe place — before return)
             System.out.println("FULL RESPONSE: " + result);
-            
+
+            // ✅ Parse JSON
             JSONObject json = new JSONObject(result);
-            
+
+            // 🔴 Handle API error
             if (json.has("error")) {
                 JSONObject error = json.getJSONObject("error");
                 return "API Error: " + error.getString("message");
             }
-            
+
+            // ✅ Normal response
             JSONArray choices = json.getJSONArray("choices");
-            
-            if (choices.length() > 0) {
-                return choices.getJSONObject(0)
-                        .getJSONObject("message")
-                        .getString("content");
-            }
-            
-            // ✅ LAST RETURN (nothing after this)
-            return "No response from AI";
 
             if (choices.length() > 0) {
                 return choices.getJSONObject(0)
