@@ -2,7 +2,8 @@ package com.example.demo;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
+import org.json.JSONObject;
+import org.json.JSONArray;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -57,11 +58,24 @@ public class GroqService {
             reader.close();
 
             String result = response.toString();
-            return result.split("\"content\":\"")[1].split("\"")[0];
+
+                // ✅ DEBUG (add this line)
+                System.out.println("FULL RESPONSE: " + result);
+                
+                // ✅ SAFE JSON PARSING
+                JSONObject json = new JSONObject(result);
+                JSONArray choices = json.getJSONArray("choices");
+                
+                if (choices.length() > 0) {
+                    JSONObject messageObj = choices.getJSONObject(0).getJSONObject("message");
+                    return messageObj.getString("content");
+                }
+                
+                return "No response from AI";
 
         } catch (Exception e) {
-            e.printStackTrace();
-            return "AI Error";
-        }
+                e.printStackTrace();  // VERY IMPORTANT
+                return "Error: " + e.getMessage();
+            }
     }
 }
