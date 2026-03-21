@@ -38,9 +38,23 @@ public class StudentController {
     @PostMapping("/chat")
     @ResponseBody
     public String chat(@RequestParam String message) {
-
+    
         List<Student> students = repo.findAll();
-
+    
+        // 🔥 SIMPLE INTENT DETECTION (REAL ACTION)
+        if (message.toLowerCase().contains("delete")) {
+    
+            for (Student s : students) {
+                if (message.toLowerCase().contains(s.getName().toLowerCase())) {
+                    repo.deleteById(s.getId());
+                    return "✅ Student " + s.getName() + " deleted successfully!";
+                }
+            }
+    
+            return "⚠️ Student not found!";
+        }
+    
+        // 🤖 Otherwise use AI
         return aiService.getAIResponse(message, students);
     }
 }
