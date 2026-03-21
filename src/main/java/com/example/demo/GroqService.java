@@ -39,7 +39,7 @@ public class GroqService {
 
             // ✅ Build JSON safely
             JSONObject requestBody = new JSONObject();
-            requestBody.put("model", "llama3-8b-8192");
+            requestBody.put("model", "llama-3.3-70b-versatile");
 
             JSONArray messages = new JSONArray();
 
