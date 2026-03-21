@@ -35,7 +35,6 @@ public class StudentController {
         return "redirect:/";
     }
 
-    // 🔥 REAL AI CHAT
     @PostMapping("/chat")
     @ResponseBody
     public String chat(@RequestParam String message) {
